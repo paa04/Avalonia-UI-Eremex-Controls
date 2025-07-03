@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Media;
+using DynamicData;
 using Eremex.AvaloniaUI.Charts;
 
 namespace Charts.Controls;
@@ -13,6 +14,11 @@ public partial class DataChartEremex: UserControl
         InitChart();
     }
 
+    public void AddSeries(CartesianSeries series)
+    {
+        Chart.Series.Add(series);
+    }
+    
     public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) 
         where TView : CartesianSeriesView, new()
     {
