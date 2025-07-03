@@ -77,4 +77,25 @@ public partial class DataChartEremex: UserControl
     {
         Chart.AxesY.Add(axis);
     }
+
+    public void LoadData<TView>(string[] data, Color color, string? keyX = null, string? keyY = null)
+    where TView: CartesianSeriesView, new()
+    {
+        var adapter = new SortedDateTimeDataAdapter();
+
+        foreach(var line in data)
+        {
+            var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 3)
+            {
+                var dateTimeString = $"{parts[0]} {parts[1]}";
+                if (DateTime.TryParse(dateTimeString, out var dateTime) &&
+                    double.TryParse(parts[2], out var value))
+                {
+                    adapter.Add(dateTime, value);
+                }
+            }
+        }
+        AddSeries<TView>(adapter, color, keyX, keyY);
+    }
 }

@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mxc="https://schemas.eremexcontrols.net/avalonia/charts"
-             xmlns:mxb="https://schemas.eremexcontrols.net/avalonia/bars"
              x:Class="Charts.Controls.DataChartEremex">
     
     <mxc:CartesianChart x:Name="Chart"/>

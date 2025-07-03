@@ -1,5 +1,9 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Eremex.AvaloniaUI.Charts;
 using Eremex.AvaloniaUI.Controls.Common;
@@ -56,5 +60,42 @@ public partial class MainWindow : MxWindow
             {
                 MeasureUnit = DateTimeUnit.Month,
             }});
+    }
+
+    private async void OnLoadButtonClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Выберите файл с данными",
+            AllowMultiple = false
+        };
+
+        var result = await dialog.ShowAsync(this);
+
+        if (result != null && result.Length > 0)
+        {
+            var filePath = result[0];
+            try
+            {
+                string[] lines = await File.ReadAllLinesAsync(filePath);
+                chartControl.LoadData<CartesianSideBySideBarSeriesView>(lines, Colors.Gold, "Month");
+            }
+            catch (Exception ex)
+            {
+                await MessageBox("Ошибка", $"Не удалось загрузить данные: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task MessageBox(string title, string message)
+    {
+        var dialog = new Window
+        {
+            Title = title,
+            Width = 300,
+            Height = 150,
+            Content = new TextBlock { Text = message, Margin = new Thickness(10) }
+        };
+        await dialog.ShowDialog(this);
     }
 }
