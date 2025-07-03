@@ -8,34 +8,34 @@ namespace ChartBarSeriesView.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty] SeriesViewModel barSeries1;
-    [ObservableProperty] SeriesViewModel linearSeries1;
-    [ObservableProperty] FuncLabelFormatter monthFormatter = new(o => String.Format("{0:MMM} {0:yy}", o));
-
     public MainWindowViewModel()
     {
-        var random = new Random(11);
-        var startDate = new DateTime(DateTime.Now.Year, 1, 1);
-        SortedDateTimeDataAdapter barSeries1DataAdapter = new();
-        SortedDateTimeDataAdapter barSeries2DataAdapter = new();
-        SortedDateTimeDataAdapter barSeries3DataAdapter = new();
-        SortedDateTimeDataAdapter linearSeries1DataAdapter = new();
+        Random rand = new Random(4);
+
+        SortedDateTimeDataAdapter adapter1 = new SortedDateTimeDataAdapter();
+        SortedDateTimeDataAdapter adapter2 = new SortedDateTimeDataAdapter();
+        SortedDateTimeDataAdapter adapter3 = new SortedDateTimeDataAdapter();
+
         for (int i = 0; i < 12; i++)
         {
-            var argument = startDate.AddMonths(i);
-            barSeries1DataAdapter.Add(argument, random.NextDouble() * 100 - 30);
-            barSeries2DataAdapter.Add(argument, random.NextDouble() * 100 - 30);
-            barSeries3DataAdapter.Add(argument, random.NextDouble() * 100 - 30);
-            linearSeries1DataAdapter.Add(argument, random.NextDouble() * 100 - 30);
+            adapter1.Add(DateTime.Now.AddMonths(i), i);
+            adapter2.Add(DateTime.Now.AddMonths(i), i * 2);
         }
-        // Create data series
-        BarSeries1 = new() { Color = Color.FromUInt32(0xffe07a5f), DataAdapter = barSeries1DataAdapter };
-        LinearSeries1 = new (){ Color = Color.FromArgb(255, 255, 0, 0), DataAdapter = linearSeries1DataAdapter };
-    }
-}
 
-public partial class SeriesViewModel : ObservableObject
-{
-    [ObservableProperty] Color color;
-    [ObservableProperty] ISeriesDataAdapter dataAdapter;
+        for (int i = 0; i < 360; i++)
+        {
+            adapter3.Add(DateTime.Now.AddDays(i), rand.NextDouble() * 7);
+        }
+
+        var axis = new AxisX
+        {
+            Key = "Day",
+            Title = "Day",
+            ScaleOptions = new DateTimeScaleOptions
+            {
+                MeasureUnit = DateTimeUnit.Day,
+            }
+        };
+        
+    }
 }
