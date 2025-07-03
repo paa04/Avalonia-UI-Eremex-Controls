@@ -13,7 +13,7 @@ public partial class DataChartEremex: UserControl
         InitChart();
     }
 
-    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string keyX = "", string keyY = "") 
+    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) 
         where TView : CartesianSeriesView, new()
     {
         var view = new TView();
@@ -22,9 +22,12 @@ public partial class DataChartEremex: UserControl
         var series = new CartesianSeries { 
             DataAdapter = adapter, 
             View = view,
-            AxisXKey = keyX,
-            AxisYKey = keyY
         };
+        
+        if (keyX is not null)
+            series.AxisXKey = keyX;
+        if (keyY is not null)
+            series.AxisYKey = keyY;
         
         Chart.Series.Add(series);
     }
@@ -45,14 +48,14 @@ public partial class DataChartEremex: UserControl
         }
     }
     
-    public void AddLineSeries(ISeriesDataAdapter adapter, Color color, string keyX = "", string keyY = "")
+    public void AddLineSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null)
         => AddSeries<CartesianLineSeriesView>(adapter, color, keyX, keyY);
     
-    public void AddBarSeries(ISeriesDataAdapter adapter, Color color, string keyX = "", string keyY = "") =>
+    public void AddBarSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
         AddSeries<CartesianSideBySideBarSeriesView>(adapter, color, keyX, keyY);
-    public void AddPointSeries(ISeriesDataAdapter adapter, Color color, string keyX = "", string keyY = "") =>
+    public void AddPointSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
         AddSeries<CartesianPointSeriesView>(adapter, color, keyX, keyY);
-    public void AddAreaSeries(ISeriesDataAdapter adapter, Color color, string keyX = "", string keyY = "") =>
+    public void AddAreaSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
     AddSeries<CartesianAreaSeriesView>(adapter, color, keyX, keyY);
     private void InitChart()
     {
