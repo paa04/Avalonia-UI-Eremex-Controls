@@ -6,7 +6,7 @@ using Eremex.AvaloniaUI.Charts;
 
 namespace Charts.Controls;
 
-public partial class DataChartEremex: UserControl
+public partial class DataChartEremex : UserControl
 {
     public DataChartEremex()
     {
@@ -17,23 +17,24 @@ public partial class DataChartEremex: UserControl
     {
         Chart.Series.Add(series);
     }
-    
-    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) 
+
+    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null)
         where TView : CartesianSeriesView, new()
     {
         var view = new TView();
         SetColor(view, color);
-    
-        var series = new CartesianSeries { 
-            DataAdapter = adapter, 
+
+        var series = new CartesianSeries
+        {
+            DataAdapter = adapter,
             View = view,
         };
-        
+
         if (keyX is not null)
             series.AxisXKey = keyX;
         if (keyY is not null)
             series.AxisYKey = keyY;
-        
+
         Chart.Series.Add(series);
     }
 
@@ -41,7 +42,7 @@ public partial class DataChartEremex: UserControl
     {
         var type = view.GetType();
         var property = type.GetProperty("Color");
-    
+
         if (property != null && property.PropertyType == typeof(Color))
         {
             property.SetValue(view, color);
@@ -52,22 +53,24 @@ public partial class DataChartEremex: UserControl
                 $"Тип {type.Name} не содержит свойство Color типа Color");
         }
     }
-    
+
     public void AddLineSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null)
         => AddSeries<CartesianLineSeriesView>(adapter, color, keyX, keyY);
-    
+
     public void AddBarSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
         AddSeries<CartesianSideBySideBarSeriesView>(adapter, color, keyX, keyY);
+
     public void AddPointSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
         AddSeries<CartesianPointSeriesView>(adapter, color, keyX, keyY);
+
     public void AddAreaSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
-    AddSeries<CartesianAreaSeriesView>(adapter, color, keyX, keyY);
+        AddSeries<CartesianAreaSeriesView>(adapter, color, keyX, keyY);
 
     public void AddLegend()
     {
         throw new NotImplementedException();
     }
-    
+
     public void AddXAxis(AxisX axis)
     {
         Chart.AxesX.Add(axis);
@@ -79,11 +82,11 @@ public partial class DataChartEremex: UserControl
     }
 
     public void LoadData<TView>(string[] data, Color color, string? keyX = null, string? keyY = null)
-    where TView: CartesianSeriesView, new()
+        where TView : CartesianSeriesView, new()
     {
         var adapter = new SortedDateTimeDataAdapter();
 
-        foreach(var line in data)
+        foreach (var line in data)
         {
             var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length >= 3)
@@ -96,6 +99,7 @@ public partial class DataChartEremex: UserControl
                 }
             }
         }
+
         AddSeries<TView>(adapter, color, keyX, keyY);
     }
 }
