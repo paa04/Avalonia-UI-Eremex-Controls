@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="11.3.2" />
+      <PackageReference Include="Eremex.Avalonia.Controls" Version="1.1.144" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="DataChartEremex.axaml.cs">
+        <DependentUpon>DataChartEremex.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+</Project>

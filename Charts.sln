@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Charts", "Charts\Charts.csproj", "{6D7F18EB-1D28-42C5-B7F6-47456E4D752D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controls", "Controls\Controls.csproj", "{C2D0A0EC-8046-4D11-88F9-3A5E82256B73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{6D7F18EB-1D28-42C5-B7F6-47456E4D752D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D7F18EB-1D28-42C5-B7F6-47456E4D752D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D7F18EB-1D28-42C5-B7F6-47456E4D752D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D0A0EC-8046-4D11-88F9-3A5E82256B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D0A0EC-8046-4D11-88F9-3A5E82256B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D0A0EC-8046-4D11-88F9-3A5E82256B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D0A0EC-8046-4D11-88F9-3A5E82256B73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

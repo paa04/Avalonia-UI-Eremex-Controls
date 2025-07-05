@@ -1,10 +1,8 @@
-using System;
 using Avalonia.Controls;
 using Avalonia.Media;
-using DynamicData;
 using Eremex.AvaloniaUI.Charts;
 
-namespace Charts.Controls;
+namespace Controls;
 
 public partial class DataChartEremex : UserControl
 {
