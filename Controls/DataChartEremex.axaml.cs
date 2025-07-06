@@ -1,26 +1,44 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Eremex.AvaloniaUI.Charts;
 
 namespace Controls;
 
+public record ChartPosition(int Row, int Column);
+
+public record SeriesAxisKeys(string? KeyX, string? KeyY);
+
 public partial class DataChartEremex : UserControl
 {
+    private readonly Dictionary<ChartPosition, CartesianChart> _charts =
+        new Dictionary<ChartPosition, CartesianChart>();
+
     public DataChartEremex()
     {
         InitializeComponent();
     }
 
-    public void AddSeries(CartesianSeries series)
+    private CartesianChart GetChart(ChartPosition position)
     {
-        Chart.Series.Add(series);
+        return _charts[position];
     }
 
-    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null)
+    public void AddSeries(ChartPosition pos, CartesianSeries series)
+    {
+        var chart = GetChart(pos);
+        chart.Series.Add(series);
+    }
+
+    public CartesianSeries AddSeries<TView>(
+        ISeriesDataAdapter adapter,
+        ChartPosition pos,
+        SeriesAxisKeys? keys = null,
+        Action<TView>? configureView = null)
         where TView : CartesianSeriesView, new()
     {
         var view = new TView();
-        SetColor(view, color);
+        configureView?.Invoke(view);
 
         var series = new CartesianSeries
         {
@@ -28,12 +46,17 @@ public partial class DataChartEremex : UserControl
             View = view,
         };
 
-        if (keyX is not null)
-            series.AxisXKey = keyX;
-        if (keyY is not null)
-            series.AxisYKey = keyY;
+        if (keys is not null)
+        {
+            if (keys.KeyX != null)
+                series.AxisXKey = keys.KeyX;
+            if (keys.KeyY != null)
+                series.AxisYKey = keys.KeyY;
+        }
 
-        Chart.Series.Add(series);
+
+        GetChart(pos).Series.Add(series);
+        return series;
     }
 
     private void SetColor(CartesianSeriesView view, Color color)
@@ -52,34 +75,24 @@ public partial class DataChartEremex : UserControl
         }
     }
 
-    public void AddLineSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null)
-        => AddSeries<CartesianLineSeriesView>(adapter, color, keyX, keyY);
-
-    public void AddBarSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
-        AddSeries<CartesianSideBySideBarSeriesView>(adapter, color, keyX, keyY);
-
-    public void AddPointSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
-        AddSeries<CartesianPointSeriesView>(adapter, color, keyX, keyY);
-
-    public void AddAreaSeries(ISeriesDataAdapter adapter, Color color, string? keyX = null, string? keyY = null) =>
-        AddSeries<CartesianAreaSeriesView>(adapter, color, keyX, keyY);
-
     public void AddLegend()
     {
         throw new NotImplementedException();
     }
 
-    public void AddXAxis(AxisX axis)
+    public void AddXAxis(ChartPosition pos, AxisX axis)
     {
-        Chart.AxesX.Add(axis);
+        var chart = GetChart(pos);
+        chart.AxesX.Add(axis);
     }
 
-    public void AddYAxis(AxisY axis)
+    public void AddYAxis(ChartPosition pos, AxisY axis)
     {
-        Chart.AxesY.Add(axis);
+        var chart = GetChart(pos);
+        chart.AxesY.Add(axis);
     }
 
-    public void LoadData<TView>(string[] data, Color color, string? keyX = null, string? keyY = null)
+    public void LoadData<TView>(string[] data, Color color, ChartPosition pos, SeriesAxisKeys keys)
         where TView : CartesianSeriesView, new()
     {
         var adapter = new SortedDateTimeDataAdapter();
@@ -98,6 +111,29 @@ public partial class DataChartEremex : UserControl
             }
         }
 
-        AddSeries<TView>(adapter, color, keyX, keyY);
+        AddSeries<TView>(adapter, pos, keys, view => SetColor(view, color));
+    }
+
+    public void AddRow(GridLength height)
+    {
+        Grid.RowDefinitions.Add(new RowDefinition(height));
+    }
+
+    public void AddColumn(GridLength width)
+    {
+        Grid.ColumnDefinitions.Add(new ColumnDefinition(width));
+    }
+
+    public void AddNewChart(ChartPosition pos)
+    {
+        if (Grid.RowDefinitions.Count <= pos.Row || Grid.ColumnDefinitions.Count <= pos.Column)
+            throw new InvalidDataException();
+
+        var chart = new CartesianChart();
+        _charts.Add(pos, chart);
+
+        Grid.Children.Add(chart);
+        Grid.SetRow(chart, pos.Row);
+        Grid.SetColumn(chart, pos.Column);
     }
 }

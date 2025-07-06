@@ -3,6 +3,10 @@
              xmlns:mxc="https://schemas.eremexcontrols.net/avalonia/charts"
              x:Class="Controls.DataChartEremex">
     
-    <mxc:CartesianChart x:Name="Chart"/>
-   
+    
+    <Grid x:Name="Grid" 
+          Margin="10">
+        
+    </Grid>
+        
 </UserControl>

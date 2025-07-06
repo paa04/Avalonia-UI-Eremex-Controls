@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Controls;
 using Eremex.AvaloniaUI.Charts;
 using Eremex.AvaloniaUI.Controls.Common;
 
@@ -17,15 +18,15 @@ public partial class MainWindow : MxWindow
         InitializeComponent();
         InitChart();
     }
-    
+
     private void InitChart()
     {
         Random rand = new Random(4);
-        
+
         SortedDateTimeDataAdapter adapter1 = new SortedDateTimeDataAdapter();
         SortedDateTimeDataAdapter adapter2 = new SortedDateTimeDataAdapter();
         SortedDateTimeDataAdapter adapter3 = new SortedDateTimeDataAdapter();
-        
+
         for (int i = 0; i < 12; i++)
         {
             adapter1.Add(DateTime.Now.AddMonths(i), i);
@@ -36,11 +37,32 @@ public partial class MainWindow : MxWindow
         {
             adapter3.Add(DateTime.Now.AddDays(i), rand.NextDouble() * 7);
         }
-        
-        chartControl.AddSeries<CartesianLineSeriesView>(adapter1, Colors.Blue, "Month");
-        chartControl.AddBarSeries(adapter2, Colors.Green, "Day");
-        chartControl.AddAreaSeries(adapter3, Colors.Red, "Day");
 
+        chartControl.AddRow(GridLength.Star);
+        chartControl.AddColumn(GridLength.Star);
+
+        chartControl.AddNewChart(new ChartPosition(0, 0));
+
+        chartControl.AddSeries<CartesianSideBySideBarSeriesView>(adapter1, new ChartPosition(0, 0),
+            null, view => view.Color = Colors.Red);
+
+        chartControl.AddColumn(GridLength.Star);
+        chartControl.AddNewChart(new ChartPosition(0, 1));
+        chartControl.AddXAxis(new ChartPosition(0, 0),
+            new AxisX
+            {
+                Key = "Day",
+                Title = "Day",
+                ScaleOptions = new DateTimeScaleOptions
+                {
+                    MeasureUnit = DateTimeUnit.Day,
+                }
+            });
+        chartControl.AddSeries<CartesianSideBySideBarSeriesView>(adapter2, new ChartPosition(0, 0),
+            new SeriesAxisKeys("Day", null), view => view.Color = Colors.Red);
+
+        chartControl.AddSeries<CartesianSideBySideBarSeriesView>(adapter3, new ChartPosition(0, 1),
+            new SeriesAxisKeys("Day", null), view => view.Color = Colors.Red);
         var axis = new AxisX
         {
             Key = "Day",
@@ -50,16 +72,20 @@ public partial class MainWindow : MxWindow
                 MeasureUnit = DateTimeUnit.Day,
             }
         };
-        
-        chartControl.AddXAxis(axis);
-        
-        chartControl.AddXAxis(new AxisX{
+
+        chartControl.AddXAxis(new ChartPosition(0, 1), axis);
+
+        chartControl.AddXAxis(new ChartPosition(0, 0), new AxisX
+        {
             Key = "Month",
             Title = "Month",
             ScaleOptions = new DateTimeScaleOptions
             {
                 MeasureUnit = DateTimeUnit.Month,
-            }});
+            }
+        });
+
+        chartControl.AddRow(GridLength.Star);
     }
 
     private async void OnLoadButtonClick(object? sender, RoutedEventArgs e)
@@ -78,7 +104,7 @@ public partial class MainWindow : MxWindow
             try
             {
                 string[] lines = await File.ReadAllLinesAsync(filePath);
-                chartControl.LoadData<CartesianSideBySideBarSeriesView>(lines, Colors.Gold, "Month");
+                chartControl.LoadData<CartesianSideBySideBarSeriesView>(lines, Colors.Gold, new ChartPosition(0, 0), new SeriesAxisKeys("Month", null));
             }
             catch (Exception ex)
             {

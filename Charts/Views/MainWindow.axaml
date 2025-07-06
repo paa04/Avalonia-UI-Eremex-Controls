@@ -17,14 +17,17 @@
         <viewModels:MainWindowViewModel/>
     </Design.DataContext>
     
-    <DockPanel>
-        <Button Content="Загрузить"
-                DockPanel.Dock="Top"
-                HorizontalAlignment="Left"
-                Margin="5"
-                Click="OnLoadButtonClick" />
-        
-        <controls1:DataChartEremex Name="chartControl" />
-    </DockPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <DockPanel>
+            <Button Content="Загрузить"
+                    DockPanel.Dock="Top"
+                    HorizontalAlignment="Left"
+                    Margin="5"
+                    Click="OnLoadButtonClick" />
+            
+            <controls1:DataChartEremex Name="chartControl" />
+        </DockPanel>
+    </ScrollViewer>
     
 </mx:MxWindow>
