@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="DataChartEremex.axaml.cs">
+      <Compile Update="View\DataChartEremex.axaml.cs">
         <DependentUpon>DataChartEremex.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
