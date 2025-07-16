@@ -5,6 +5,7 @@
              xmlns:mx="https://schemas.eremexcontrols.net/avalonia"
              xmlns:viewModels="clr-namespace:ChartBarSeriesView.ViewModels"
              xmlns:controls1="clr-namespace:Controls;assembly=Controls"
+             xmlns:view="clr-namespace:Controls.View;assembly=Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Charts.Views.MainWindow"
              x:DataType="viewModels:MainWindowViewModel"
@@ -26,7 +27,7 @@
                     Margin="5"
                     Click="OnLoadButtonClick" />
             
-            <controls1:DataChartEremex Name="chartControl" />
+            <view:DataChartEremex Name="chartControl" />
         </DockPanel>
     </ScrollViewer>
     

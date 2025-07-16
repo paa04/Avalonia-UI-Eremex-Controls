@@ -1,55 +1,157 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Avalonia.Media;
 using Eremex.AvaloniaUI.Charts;
 using Controls.View;
 
 namespace Controls.ViewModel;
 
-public class DataChartViewModel
+public class DataChartViewModel : INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged(string propertyName) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
     public ObservableCollection<ChartDefinition> Charts { get; } = new();
 
-    public void AddChartArea(ChartPosition pos)
+    public DataChartViewModel()
     {
-        Charts.Add(new ChartDefinition { Position = pos });
+        // Подписываемся на изменения коллекции чартов
+        Charts.CollectionChanged += OnChartsCollectionChanged;
     }
 
-    public void AddSeries<TView>(ChartPosition pos, ISeriesDataAdapter adapter, Color color)
-        where TView : CartesianSeriesView, new()
+    private void OnChartsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        var def = GetDefinition(pos);
-        var view = new TView();
-        SetColor(view, color);
-
-        var series = new CartesianSeries
+        switch (e.Action)
         {
-            DataAdapter = adapter,
-            View = view
-        };
-
-        def.Series.Add(series);
+            case NotifyCollectionChangedAction.Add:
+                foreach (ChartDefinition chart in e.NewItems!)
+                {
+                    OnChartAdded(chart);
+                }
+                break;
+                
+            case NotifyCollectionChangedAction.Remove:
+                foreach (ChartDefinition chart in e.OldItems!)
+                {
+                    OnChartRemoved(chart);
+                }
+                break;
+        }
     }
 
-    public void AddAxisX(ChartPosition pos, AxisX axis)
+    private void OnChartAdded(ChartDefinition chart)
     {
-        GetDefinition(pos).AxesX.Add(axis);
+        // Можно добавить дополнительную логику при добавлении нового чарта
+        // Например, установить позицию по умолчанию
+        if (chart.Position == default)
+        {
+            chart.Position = new ChartPosition(Charts.Count - 1, 0);
+        }
     }
 
-    public void AddAxisY(ChartPosition pos, AxisY axis)
+    private void OnChartRemoved(ChartDefinition chart)
     {
-        GetDefinition(pos).AxesY.Add(axis);
+        // Логика при удалении чарта
+        // Например, освобождение ресурсов
+    }
+
+    public int AddChartArea()
+    {
+        var chart = new ChartDefinition();
+        Charts.Add(chart);
+        return Charts.Count - 1;
+    }
+
+    public int AddChartArea(ChartPosition position)
+    {
+        var chart = new ChartDefinition { Position = position };
+        Charts.Add(chart);
+        return Charts.Count - 1;
+    }
+
+    public void RemoveChartArea(int index)
+    {
+        if (index >= 0 && index < Charts.Count)
+        {
+            Charts.RemoveAt(index);
+        }
+    }
+
+    public void RemoveChartArea(ChartDefinition chart)
+    {
+        Charts.Remove(chart);
+    }
+
+    public void ClearCharts()
+    {
+        Charts.Clear();
+    }
+    
+    public ChartDefinition this[int index] => Charts[index];
+
+    public ChartDefinition? GetChartByPosition(ChartPosition position)
+    {
+        return Charts.FirstOrDefault(c => c.Position == position);
     }
 
     private ChartDefinition GetDefinition(ChartPosition pos) =>
         Charts.FirstOrDefault(c => c.Position == pos)
         ?? throw new InvalidOperationException($"Chart at {pos} not found");
 
-    private void SetColor(CartesianSeriesView view, Color color)
+    // Методы для работы с конкретными чартами
+    public void UpdateChart(int index, Action<ChartDefinition> updateAction)
     {
-        var property = view.GetType().GetProperty("Color");
-        if (property != null && property.PropertyType == typeof(Color))
+        if (index >= 0 && index < Charts.Count)
         {
-            property.SetValue(view, color);
+            var chart = Charts[index];
+            chart.BeginUpdate();
+            try
+            {
+                updateAction(chart);
+            }
+            finally
+            {
+                chart.EndUpdate();
+            }
         }
     }
+
+    public void UpdateChart(ChartDefinition chart, Action<ChartDefinition> updateAction)
+    {
+        chart.BeginUpdate();
+        try
+        {
+            updateAction(chart);
+        }
+        finally
+        {
+            chart.EndUpdate();
+        }
+    }
+
+    // Вспомогательные методы для пакетных операций
+    public void AddMultipleCharts(params ChartDefinition[] charts)
+    {
+        foreach (var chart in charts)
+        {
+            Charts.Add(chart);
+        }
+    }
+
+    public void ReplaceChart(int index, ChartDefinition newChart)
+    {
+        if (index >= 0 && index < Charts.Count)
+        {
+            Charts[index] = newChart;
+        }
+    }
+
+    public int ChartsCount => Charts.Count;
+
+    public bool HasCharts => Charts.Count > 0;
+
+    public IEnumerable<ChartDefinition> VisibleCharts => Charts.Where(c => c.IsVisible);
 }
