@@ -18,7 +18,6 @@ public class DataChartViewModel : INotifyPropertyChanged
 
     public DataChartViewModel()
     {
-        // Подписываемся на изменения коллекции чартов
         Charts.CollectionChanged += OnChartsCollectionChanged;
     }
 
@@ -44,8 +43,6 @@ public class DataChartViewModel : INotifyPropertyChanged
 
     private void OnChartAdded(ChartDefinition chart)
     {
-        // Можно добавить дополнительную логику при добавлении нового чарта
-        // Например, установить позицию по умолчанию
         if (chart.Position == default)
         {
             chart.Position = new ChartPosition(Charts.Count - 1, 0);
@@ -54,8 +51,7 @@ public class DataChartViewModel : INotifyPropertyChanged
 
     private void OnChartRemoved(ChartDefinition chart)
     {
-        // Логика при удалении чарта
-        // Например, освобождение ресурсов
+        //TODO
     }
 
     public int AddChartArea()
@@ -101,7 +97,6 @@ public class DataChartViewModel : INotifyPropertyChanged
         Charts.FirstOrDefault(c => c.Position == pos)
         ?? throw new InvalidOperationException($"Chart at {pos} not found");
 
-    // Методы для работы с конкретными чартами
     public void UpdateChart(int index, Action<ChartDefinition> updateAction)
     {
         if (index >= 0 && index < Charts.Count)
@@ -132,7 +127,6 @@ public class DataChartViewModel : INotifyPropertyChanged
         }
     }
 
-    // Вспомогательные методы для пакетных операций
     public void AddMultipleCharts(params ChartDefinition[] charts)
     {
         foreach (var chart in charts)

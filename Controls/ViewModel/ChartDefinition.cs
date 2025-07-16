@@ -1,11 +1,16 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Controls.View;
+using DynamicData;
 using Eremex.AvaloniaUI.Charts;
 
 namespace Controls.ViewModel;
+
+public record AxesKey(string KeyX, string KeyY);
 
 public class ChartDefinition : INotifyPropertyChanged
 {
@@ -13,15 +18,17 @@ public class ChartDefinition : INotifyPropertyChanged
 
     protected void OnPropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    
+
     private ChartPosition _position;
     private string _title = string.Empty;
     private bool _isVisible = true;
 
-    public ChartPosition Position 
-    { 
+    private int _axisKey = 0;
+
+    public ChartPosition Position
+    {
         get => _position;
-        set 
+        set
         {
             if (_position != value)
             {
@@ -31,10 +38,10 @@ public class ChartDefinition : INotifyPropertyChanged
         }
     }
 
-    public string Title 
-    { 
+    public string Title
+    {
         get => _title;
-        set 
+        set
         {
             if (_title != value)
             {
@@ -44,10 +51,10 @@ public class ChartDefinition : INotifyPropertyChanged
         }
     }
 
-    public bool IsVisible 
-    { 
+    public bool IsVisible
+    {
         get => _isVisible;
-        set 
+        set
         {
             if (_isVisible != value)
             {
@@ -63,22 +70,7 @@ public class ChartDefinition : INotifyPropertyChanged
     public ObservableCollection<AxisY> AxesY { get; } = new();
     public ObservableCollection<AxisY> AxesY2 { get; } = new();
 
-    public ChartDefinition()
-    {
-        // Подписываемся на изменения коллекций для уведомления View
-        Series.CollectionChanged += (_, e) => OnCollectionChanged(nameof(Series), e);
-        AxesX.CollectionChanged += (_, e) => OnCollectionChanged(nameof(AxesX), e);
-        AxesX2.CollectionChanged += (_, e) => OnCollectionChanged(nameof(AxesX2), e);
-        AxesY.CollectionChanged += (_, e) => OnCollectionChanged(nameof(AxesY), e);
-        AxesY2.CollectionChanged += (_, e) => OnCollectionChanged(nameof(AxesY2), e);
-    }
-
-    private void OnCollectionChanged(string collectionName, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(collectionName);
-    }
-    
-    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color)
+    public void AddSeries<TView>(ISeriesDataAdapter adapter, Color color, AxesKey? key = null)
         where TView : CartesianSeriesView, new()
     {
         var view = new TView();
@@ -90,32 +82,134 @@ public class ChartDefinition : INotifyPropertyChanged
             View = view
         };
 
+        if (key != null)
+        {
+            series.AxisXKey = key.KeyX;
+            series.AxisYKey = key.KeyY;
+        }
+
         Series.Add(series);
     }
-    
-    public void AddAxisX(AxisX axis)
+
+    public void DeleteSeries(string seriesName)
     {
+        var series = Series.Where(s => s.SeriesName == seriesName);
+        Series.RemoveMany(series);
+    }
+
+    public void DeleteSeries(int seriesIndex)
+    {
+        Series.RemoveAt(seriesIndex);
+    }
+
+    public IEnumerable<CartesianSeries> FindSeriesIndex(string seriesName, string comment = "")
+    {
+        return Series.Where(s => s.SeriesName == seriesName);
+    }
+    
+    public void AddSeries(ISeriesDataAdapter dataAdapter, Color color, string Name, SeriesChartType Type, bool XAxisPrimary,
+        bool YAxisPrimary,
+        int XAxisIndex, int YAxisIndex, string Unit = "", int GroupIndex = -1, CartesianSeries? seriesSettings = null)
+    {
+        CartesianSeries series;
+    
+        if (seriesSettings is not null)
+            series = seriesSettings;
+    
+        var keyX = GetKeyXByIndex(XAxisIndex, XAxisPrimary);
+        var keyY = GetKeyYByIndex(YAxisIndex, YAxisPrimary);
+    
+        var view = MapSeriesType(Type);
+        SetColor(view, color);
+        
+        series = new CartesianSeries
+        {
+            DataAdapter = dataAdapter, Name = Name, View = view,
+            AxisXKey = keyX, AxisYKey = keyY
+        };
+    
+         Series.Add(series);
+    }
+
+    public void AddAxisX()
+    {
+        var axis = new AxisX
+        {
+            Key = GetNewAxesKey(),
+            ScaleOptions = new DateTimeScaleOptions
+            {
+                MeasureUnit = DateTimeUnit.Day,
+            }
+        };
         AxesX.Add(axis);
     }
 
-    public void AddAxisY(AxisY axis)
+    public void RemoveAxisX()
     {
+        AxesX.RemoveAt(0);
+    }
+
+    public void AddAxisY()
+    {
+        var axis = new AxisY
+        {
+            Key = GetNewAxesKey()
+        };
         AxesY.Add(axis);
     }
 
-    public void AddAxisX2(AxisX axis)
+    public void RemoveAxisY()
     {
+        AxesY.RemoveAt(0);
+    }
+
+    public void RemoveAxisY(int index)
+    {
+        AxesY.RemoveAt(index);
+    }
+
+    public void AddAxisX2()
+    {
+        var axis = new AxisX
+        {
+            Key = GetNewAxesKey(), Position = AxisPosition.Far,
+            ScaleOptions = new DateTimeScaleOptions
+            {
+                MeasureUnit = DateTimeUnit.Day,
+            }
+        };
         AxesX2.Add(axis);
     }
 
-    public void AddAxisY2(AxisY axis)
+    public void AddAxisY2()
     {
+        var axis = new AxisY { Key = GetNewAxesKey(), Position = AxisPosition.Far };
         AxesY2.Add(axis);
+    }
+
+    public void RemoveAxisY2()
+    {
+        AxesY2.RemoveAt(AxesY2.Count - 1);
+    }
+
+    public void RemoveAxisY2(int index)
+    {
+        AxesY2.RemoveAt(index);
     }
 
     public void RemoveSeries(CartesianSeries series)
     {
         Series.Remove(series);
+    }
+
+    public AxisY? FindAxisY(string title)
+    {
+        return AxesY.FirstOrDefault(axis => axis.Title == title);
+    }
+
+    public AxisX? FindAxisX(string title)
+    {
+        return AxesX.FirstOrDefault(axis => axis.Title == title);
     }
 
     public void ClearSeries()
@@ -139,7 +233,7 @@ public class ChartDefinition : INotifyPropertyChanged
             property.SetValue(view, color);
         }
     }
-    
+
     public void LoadData<TView>(string[] data, Color color)
         where TView : CartesianSeriesView, new()
     {
@@ -162,6 +256,48 @@ public class ChartDefinition : INotifyPropertyChanged
         AddSeries<TView>(adapter, color);
     }
 
+    private CartesianSeriesView MapSeriesType(SeriesChartType chartType)
+    {
+        switch (chartType)
+        {
+            case SeriesChartType.Point:
+                return new CartesianPointSeriesView();
+            case SeriesChartType.Line:
+                return new CartesianLineSeriesView();
+            case SeriesChartType.Area:
+                return new CartesianAreaSeriesView();
+            case SeriesChartType.Column:
+                return new CartesianSideBySideBarSeriesView();
+            case SeriesChartType.BrokenLine:
+                return new CartesianScatterLineSeriesView();
+            default:
+                throw new ArgumentOutOfRangeException(nameof(chartType), chartType, null);
+        }
+    }
+    
+    private string GetNewAxesKey()
+    {
+        var key = _axisKey.ToString();
+        _axisKey++;
+        return key;
+    }
+
+    private string GetKeyXByIndex(int index, bool isPrimary)
+    {
+        if (isPrimary)
+            return AxesX[index].Key;
+
+        return AxesX2[index].Key;
+    }
+
+    private string GetKeyYByIndex(int index, bool isPrimary)
+    {
+        if (isPrimary)
+            return AxesY[index].Key;
+        
+        return AxesY2[index].Key;
+    }
+
     // Метод для пакетного обновления (чтобы избежать множественных уведомлений)
     public void BeginUpdate()
     {
@@ -175,4 +311,15 @@ public class ChartDefinition : INotifyPropertyChanged
     }
 
     private bool _isUpdating;
+}
+
+public enum SeriesChartType : byte
+{
+    Point = 0,
+    Line = 3,
+    StepLine = 5,
+    Column = 10,
+    Area = 13,
+    StackedArea = 15,
+    BrokenLine = 35
 }
