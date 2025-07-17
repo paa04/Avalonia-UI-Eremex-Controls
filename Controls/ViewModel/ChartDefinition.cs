@@ -127,7 +127,7 @@ public class ChartDefinition : INotifyPropertyChanged
 
             series = new CartesianSeries
             {
-                DataAdapter = dataAdapter, Name = Name, View = view,
+                DataAdapter = dataAdapter, SeriesName = Name, View = view,
                 AxisXKey = keyX, AxisYKey = keyY
             };
         }
@@ -289,6 +289,8 @@ public class ChartDefinition : INotifyPropertyChanged
                 return new CartesianScatterLineSeriesView();
             case SeriesChartType.StepLine:
                 return new CartesianStepLineSeriesView();
+            case SeriesChartType.StackedArea:
+                throw new NotImplementedException("StackedArea is not currently supported");
             default:
                 throw new ArgumentOutOfRangeException(nameof(chartType), chartType, null);
         }

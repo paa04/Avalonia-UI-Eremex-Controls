@@ -10,8 +10,6 @@ namespace Controls.View;
 
 public record ChartPosition(int Row, int Column);
 
-public record SeriesAxisKeys(string? KeyX, string? KeyY);
-
 public partial class DataChartEremex : UserControl
 {
     private readonly Dictionary<ChartDefinition, CartesianChart> _chartVisuals = new();
@@ -110,6 +108,7 @@ public partial class DataChartEremex : UserControl
         return chart;
     }
 
+    // Не используется
     private void SubscribeToChartChanges(ChartDefinition def, CartesianChart chart)
     {
         def.Series.CollectionChanged += (_, _) => RefreshChartSeries(chart, def);
