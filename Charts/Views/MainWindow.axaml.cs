@@ -105,8 +105,7 @@ public partial class MainWindow : MxWindow
         }
         
         vm[2].Update();
-        // vm[0].RequestScroll(new Point(0, 0), new Point(5000, 5000));
-        vm[2].ScrollLogicalX(0);
+        vm[0].RequestScroll(new Point(0, 0), new Point(50000, 50000));
     }
 
     private async Task MessageBox(string title, string message)

@@ -248,16 +248,8 @@ public class ChartDefinition : INotifyPropertyChanged
         var deltaY = point2.Y - point1.Y;
         OnScrollRequested?.Invoke(this, new ScrollRequestEventArgs(deltaX, deltaY));
     }
-
     public event EventHandler<ScrollRequestEventArgs>? OnScrollRequested;
     
-    public void ScrollLogicalX(double valueDelta)
-    {
-        ScrollRequestedByValue?.Invoke(this, new ValueScrollEventArgs(valueDelta, AxisOrientation.Horizontal));
-    }
-    
-    public event EventHandler<ValueScrollEventArgs>? ScrollRequestedByValue;
-
     public void LoadData<TView>(string[] data, Color color, AxesKey? key = null)
         where TView : CartesianSeriesView, new()
     {
@@ -353,19 +345,5 @@ public class ScrollRequestEventArgs : EventArgs
         DeltaX = deltaX;
         DeltaY = deltaY;
         Axes = axes;
-    }
-}
-
-public enum AxisOrientation { Horizontal, Vertical }
-
-public class ValueScrollEventArgs : EventArgs
-{
-    public double ValueDelta { get; }
-    public AxisOrientation Orientation { get; }
-
-    public ValueScrollEventArgs(double delta, AxisOrientation orientation)
-    {
-        ValueDelta = delta;
-        Orientation = orientation;
     }
 }
