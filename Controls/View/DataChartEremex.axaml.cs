@@ -92,18 +92,6 @@ public partial class DataChartEremex : UserControl
         {
             chart.Scroll(args.DeltaX, args.DeltaY, args.Axes);
         };
-        
-        def.ScrollRequestedByValue += (_, args) =>
-        {
-            foreach (var axis in chart.AxesX)
-            {
-                if (axis.Range != null)
-                {
-                    axis.Range.VisualMin = 10;
-                    axis.Range.VisualMax = 20;
-                }
-            }
-        };
 
     }
 
