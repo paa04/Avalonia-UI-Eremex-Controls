@@ -134,15 +134,12 @@ public class ChartDefinition : INotifyPropertyChanged
         Series.Add(series);
     }
 
-    public void AddAxisX()
+    public void AddAxisX(ScaleOptions scaleOptions)
     {
         var axis = new AxisX
         {
             Key = GetNewAxesKey(),
-            ScaleOptions = new DateTimeScaleOptions
-            {
-                MeasureUnit = DateTimeUnit.Day,
-            }
+            ScaleOptions = scaleOptions
         };
         AxesX.Add(axis);
     }
@@ -152,11 +149,12 @@ public class ChartDefinition : INotifyPropertyChanged
         AxesX.RemoveAt(0);
     }
 
-    public void AddAxisY()
+    public void AddAxisY(NumericScaleOptions scaleOptions)
     {
         var axis = new AxisY
         {
-            Key = GetNewAxesKey()
+            Key = GetNewAxesKey(),
+            ScaleOptions = scaleOptions
         };
         AxesY.Add(axis);
     }
@@ -171,22 +169,19 @@ public class ChartDefinition : INotifyPropertyChanged
         AxesY.RemoveAt(index);
     }
 
-    public void AddAxisX2()
+    public void AddAxisX2(ScaleOptions scaleOptions)
     {
         var axis = new AxisX
         {
             Key = GetNewAxesKey(), Position = AxisPosition.Far,
-            ScaleOptions = new DateTimeScaleOptions
-            {
-                MeasureUnit = DateTimeUnit.Day,
-            }
+            ScaleOptions = scaleOptions
         };
         AxesX2.Add(axis);
     }
 
-    public void AddAxisY2()
+    public void AddAxisY2(NumericScaleOptions scaleOptions)
     {
-        var axis = new AxisY { Key = GetNewAxesKey(), Position = AxisPosition.Far };
+        var axis = new AxisY { Key = GetNewAxesKey(), Position = AxisPosition.Far, ScaleOptions = scaleOptions};
         AxesY2.Add(axis);
     }
 
@@ -274,6 +269,8 @@ public class ChartDefinition : INotifyPropertyChanged
                 return new CartesianSideBySideBarSeriesView();
             case SeriesChartType.BrokenLine:
                 return new CartesianScatterLineSeriesView();
+            case SeriesChartType.StepLine:
+                return new CartesianStepLineSeriesView();
             default:
                 throw new ArgumentOutOfRangeException(nameof(chartType), chartType, null);
         }

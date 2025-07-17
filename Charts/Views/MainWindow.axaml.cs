@@ -43,30 +43,41 @@ public partial class MainWindow : MxWindow
 // добавим оси
 
 
-        vm[0].AddAxisX();
-        vm[0].AddAxisY();
+        vm[0].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
+        vm[0].AddAxisY(new NumericScaleOptions());
 
         Random rand = new Random(4);
         
         SortedDateTimeDataAdapter adapter = new SortedDateTimeDataAdapter();
+        SortedDateTimeDataAdapter adapter2 = new SortedDateTimeDataAdapter();
         
         for (int i = 0; i < 12; i++)
         {
             adapter.Add(DateTime.Now.AddMonths(i), i);
+            adapter2.Add(DateTime.Now.AddMonths(i), rand.NextDouble() * 10);
         }
         
         vm[0].AddSeries<CartesianLineSeriesView>(adapter, Colors.Blue, new AxesKey("0", "1"));
         // vm[0].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Red, new AxesKey("0", "1"));
         
-         vm[0].AddSeries(adapter, Colors.Red, "Lol", SeriesChartType.Column, true, true, 0, 0);
+        vm[0].AddSeries(adapter, Colors.Red, "Lol", SeriesChartType.Column, true, true, 0, 0);
         
-        vm[1].AddAxisX();
-        vm[1].AddAxisY();
+        // vm[0].RemoveSeries(vm[0].Series[0]);
+        
+        vm[1].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
+        vm[1].AddAxisY(new NumericScaleOptions());
+        
         
         vm[1].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Green, new AxesKey("0", "1"));
         
-        vm[2].AddAxisX();
-        vm[2].AddAxisY();
+        vm[2].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
+        vm[2].AddAxisY(new NumericScaleOptions());
+
+        foreach (var chart in vm.Charts)
+        {
+            chart.Update();
+        }
+        
     }
 
     private async void OnLoadButtonClick(object? sender, RoutedEventArgs e)
@@ -85,7 +96,7 @@ public partial class MainWindow : MxWindow
             try
             {
                 string[] lines = await File.ReadAllLinesAsync(filePath);
-                vm[2].LoadData<CartesianSideBySideBarSeriesView>(lines, Colors.Gold);
+                vm[2].LoadData<CartesianSideBySideBarSeriesView>(lines, Colors.Gold, new AxesKey("0", "1"));
             }
             catch (Exception ex)
             {
