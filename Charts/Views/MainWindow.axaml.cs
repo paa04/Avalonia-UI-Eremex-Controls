@@ -103,6 +103,10 @@ public partial class MainWindow : MxWindow
                 await MessageBox("Ошибка", $"Не удалось загрузить данные: {ex.Message}");
             }
         }
+        
+        vm[2].Update();
+        // vm[0].RequestScroll(new Point(0, 0), new Point(5000, 5000));
+        vm[2].ScrollLogicalX(0);
     }
 
     private async Task MessageBox(string title, string message)

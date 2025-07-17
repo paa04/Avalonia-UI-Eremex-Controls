@@ -97,49 +97,11 @@ public class DataChartViewModel : INotifyPropertyChanged
         Charts.FirstOrDefault(c => c.Position == pos)
         ?? throw new InvalidOperationException($"Chart at {pos} not found");
 
-    public void UpdateChart(int index, Action<ChartDefinition> updateAction)
-    {
-        if (index >= 0 && index < Charts.Count)
-        {
-            var chart = Charts[index];
-            chart.BeginUpdate();
-            try
-            {
-                updateAction(chart);
-            }
-            finally
-            {
-                chart.EndUpdate();
-            }
-        }
-    }
-
-    public void UpdateChart(ChartDefinition chart, Action<ChartDefinition> updateAction)
-    {
-        chart.BeginUpdate();
-        try
-        {
-            updateAction(chart);
-        }
-        finally
-        {
-            chart.EndUpdate();
-        }
-    }
-
     public void AddMultipleCharts(params ChartDefinition[] charts)
     {
         foreach (var chart in charts)
         {
             Charts.Add(chart);
-        }
-    }
-
-    public void ReplaceChart(int index, ChartDefinition newChart)
-    {
-        if (index >= 0 && index < Charts.Count)
-        {
-            Charts[index] = newChart;
         }
     }
 

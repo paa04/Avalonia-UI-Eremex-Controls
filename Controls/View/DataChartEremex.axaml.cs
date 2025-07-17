@@ -87,8 +87,24 @@ public partial class DataChartEremex : UserControl
         _chartVisuals[def] = chart;
 
         SubscribeToUpdates(def);
+        
+        def.OnScrollRequested += (_, args) =>
+        {
+            chart.Scroll(args.DeltaX, args.DeltaY, args.Axes);
+        };
+        
+        def.ScrollRequestedByValue += (_, args) =>
+        {
+            foreach (var axis in chart.AxesX)
+            {
+                if (axis.Range != null)
+                {
+                    axis.Range.VisualMin = 10;
+                    axis.Range.VisualMax = 20;
+                }
+            }
+        };
 
-        //SubscribeToChartChanges(def, chart);
     }
 
     private void SubscribeToUpdates(ChartDefinition def)
@@ -161,7 +177,7 @@ public partial class DataChartEremex : UserControl
             _chartVisuals.Remove(def);
         }
     }
-
+    
     private void ClearAllCharts()
     {
         Grid.Children.Clear();

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -181,7 +182,7 @@ public class ChartDefinition : INotifyPropertyChanged
 
     public void AddAxisY2(NumericScaleOptions scaleOptions)
     {
-        var axis = new AxisY { Key = GetNewAxesKey(), Position = AxisPosition.Far, ScaleOptions = scaleOptions};
+        var axis = new AxisY { Key = GetNewAxesKey(), Position = AxisPosition.Far, ScaleOptions = scaleOptions };
         AxesY2.Add(axis);
     }
 
@@ -202,12 +203,21 @@ public class ChartDefinition : INotifyPropertyChanged
 
     public AxisY? FindAxisY(string title)
     {
-        return AxesY.FirstOrDefault(axis => axis.Title == title);
+        var res = AxesY.FirstOrDefault(axis => axis.Title == title);
+        if (res is null)
+            res = AxesY2.FirstOrDefault(axis => axis.Title == title);
+
+        return res;
     }
 
     public AxisX? FindAxisX(string title)
     {
-        return AxesX.FirstOrDefault(axis => axis.Title == title);
+        var res = AxesX.FirstOrDefault(axis => axis.Title == title);
+        
+        if(res is null)
+            res = AxesX2.FirstOrDefault(axis => axis.Title == title);
+        
+        return res;
     }
 
     public void ClearSeries()
@@ -231,6 +241,22 @@ public class ChartDefinition : INotifyPropertyChanged
             property.SetValue(view, color);
         }
     }
+
+    public void RequestScroll(Point point1, Point point2)
+    {
+        var deltaX = point2.X - point1.X;
+        var deltaY = point2.Y - point1.Y;
+        OnScrollRequested?.Invoke(this, new ScrollRequestEventArgs(deltaX, deltaY));
+    }
+
+    public event EventHandler<ScrollRequestEventArgs>? OnScrollRequested;
+    
+    public void ScrollLogicalX(double valueDelta)
+    {
+        ScrollRequestedByValue?.Invoke(this, new ValueScrollEventArgs(valueDelta, AxisOrientation.Horizontal));
+    }
+    
+    public event EventHandler<ValueScrollEventArgs>? ScrollRequestedByValue;
 
     public void LoadData<TView>(string[] data, Color color, AxesKey? key = null)
         where TView : CartesianSeriesView, new()
@@ -303,20 +329,6 @@ public class ChartDefinition : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(Update));
     }
-    
-    // Метод для пакетного обновления (чтобы избежать множественных уведомлений)
-    public void BeginUpdate()
-    {
-        _isUpdating = true;
-    }
-
-    public void EndUpdate()
-    {
-        _isUpdating = false;
-        OnPropertyChanged(string.Empty); // Уведомляем о том, что все свойства могли измениться
-    }
-
-    private bool _isUpdating;
 }
 
 public enum SeriesChartType : byte
@@ -328,4 +340,32 @@ public enum SeriesChartType : byte
     Area = 13,
     StackedArea = 15,
     BrokenLine = 35
+}
+
+public class ScrollRequestEventArgs : EventArgs
+{
+    public double DeltaX { get; }
+    public double DeltaY { get; }
+    public IEnumerable<Axis>? Axes { get; }
+
+    public ScrollRequestEventArgs(double deltaX, double deltaY, IEnumerable<Axis>? axes = null)
+    {
+        DeltaX = deltaX;
+        DeltaY = deltaY;
+        Axes = axes;
+    }
+}
+
+public enum AxisOrientation { Horizontal, Vertical }
+
+public class ValueScrollEventArgs : EventArgs
+{
+    public double ValueDelta { get; }
+    public AxisOrientation Orientation { get; }
+
+    public ValueScrollEventArgs(double delta, AxisOrientation orientation)
+    {
+        ValueDelta = delta;
+        Orientation = orientation;
+    }
 }
