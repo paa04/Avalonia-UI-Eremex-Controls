@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
@@ -45,32 +46,54 @@ public partial class DataChartEremex : UserControl
                 {
                     AddNewChart(def);
                 }
+
                 break;
-                
+
             case NotifyCollectionChangedAction.Remove:
                 foreach (ChartDefinition def in e.OldItems!)
                 {
                     RemoveChart(def);
                 }
+
                 break;
-                
+
             case NotifyCollectionChangedAction.Reset:
                 ClearAllCharts();
                 break;
         }
     }
 
+    private void OnChartPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is ChartDefinition def && _chartVisuals.TryGetValue(def, out var chart))
+        {
+            if (e.PropertyName == nameof(ChartDefinition.Update))
+            {
+                RefreshChartAxes(chart, def);
+                RefreshChartSeries(chart, def);
+            }
+        }
+    }
+
+
     private void AddNewChart(ChartDefinition def)
     {
         var chart = CreateChartVisual(def);
-        
+
         var position = CalculateChartPosition();
-        
+
         AddChartToGrid(chart, position);
-        
+
         _chartVisuals[def] = chart;
-        
-        SubscribeToChartChanges(def, chart);
+
+        SubscribeToUpdates(def);
+
+        //SubscribeToChartChanges(def, chart);
+    }
+
+    private void SubscribeToUpdates(ChartDefinition def)
+    {
+        def.PropertyChanged += OnChartPropertyChanged;
     }
 
     private CartesianChart CreateChartVisual(ChartDefinition def)
@@ -86,11 +109,11 @@ public partial class DataChartEremex : UserControl
     private void SubscribeToChartChanges(ChartDefinition def, CartesianChart chart)
     {
         def.Series.CollectionChanged += (_, _) => RefreshChartSeries(chart, def);
-        
+
         def.AxesX.CollectionChanged += (_, _) => RefreshChartAxes(chart, def);
-        
+
         def.AxesY.CollectionChanged += (_, _) => RefreshChartAxes(chart, def);
-        
+
         def.AxesX2.CollectionChanged += (_, _) => RefreshChartAxes(chart, def);
         def.AxesY2.CollectionChanged += (_, _) => RefreshChartAxes(chart, def);
     }
@@ -143,7 +166,7 @@ public partial class DataChartEremex : UserControl
     {
         Grid.Children.Clear();
         _chartVisuals.Clear();
-        
+
         Grid.RowDefinitions.Clear();
         Grid.ColumnDefinitions.Clear();
     }
@@ -164,10 +187,10 @@ public partial class DataChartEremex : UserControl
             var curChart = Grid.Children[3];
             Grid.SetColumn(curChart, 2);
             Grid.SetRow(curChart, 0);
-            
+
             row = 1;
             column = 1;
-            
+
             EnsureGridSize(2, 3);
         }
         else
@@ -182,7 +205,7 @@ public partial class DataChartEremex : UserControl
     private void AddChartToGrid(CartesianChart chart, ChartPosition position)
     {
         EnsureGridSize(position.Row + 1, position.Column + 1);
-        
+
         Grid.Children.Add(chart);
         Grid.SetRow(chart, position.Row);
         Grid.SetColumn(chart, position.Column);

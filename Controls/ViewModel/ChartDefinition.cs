@@ -237,7 +237,7 @@ public class ChartDefinition : INotifyPropertyChanged
         }
     }
 
-    public void LoadData<TView>(string[] data, Color color)
+    public void LoadData<TView>(string[] data, Color color, AxesKey? key = null)
         where TView : CartesianSeriesView, new()
     {
         var adapter = new SortedDateTimeDataAdapter();
@@ -256,7 +256,8 @@ public class ChartDefinition : INotifyPropertyChanged
             }
         }
 
-        AddSeries<TView>(adapter, color);
+        AddSeries<TView>(adapter, color, key);
+        Update();
     }
 
     private CartesianSeriesView MapSeriesType(SeriesChartType chartType)
@@ -301,6 +302,11 @@ public class ChartDefinition : INotifyPropertyChanged
         return AxesY2[index].Key;
     }
 
+    public void Update()
+    {
+        OnPropertyChanged(nameof(Update));
+    }
+    
     // Метод для пакетного обновления (чтобы избежать множественных уведомлений)
     public void BeginUpdate()
     {
