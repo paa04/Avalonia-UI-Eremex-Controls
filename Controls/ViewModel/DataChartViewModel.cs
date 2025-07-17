@@ -1,8 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using Avalonia.Media;
-using Eremex.AvaloniaUI.Charts;
 using Controls.View;
 
 namespace Controls.ViewModel;
@@ -15,45 +12,7 @@ public class DataChartViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     public ObservableCollection<ChartDefinition> Charts { get; } = new();
-
-    public DataChartViewModel()
-    {
-        Charts.CollectionChanged += OnChartsCollectionChanged;
-    }
-
-    private void OnChartsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        switch (e.Action)
-        {
-            case NotifyCollectionChangedAction.Add:
-                foreach (ChartDefinition chart in e.NewItems!)
-                {
-                    OnChartAdded(chart);
-                }
-                break;
-                
-            case NotifyCollectionChangedAction.Remove:
-                foreach (ChartDefinition chart in e.OldItems!)
-                {
-                    OnChartRemoved(chart);
-                }
-                break;
-        }
-    }
-
-    private void OnChartAdded(ChartDefinition chart)
-    {
-        if (chart.Position == default)
-        {
-            chart.Position = new ChartPosition(Charts.Count - 1, 0);
-        }
-    }
-
-    private void OnChartRemoved(ChartDefinition chart)
-    {
-        //TODO
-    }
-
+    
     public int AddChartArea()
     {
         var chart = new ChartDefinition();

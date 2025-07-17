@@ -24,7 +24,7 @@ public class ChartDefinition : INotifyPropertyChanged
     private string _title = string.Empty;
     private bool _isVisible = true;
 
-    private int _axisKey = 0;
+    private int _axisKeyCounter = 0;
 
     public ChartPosition Position
     {
@@ -298,8 +298,8 @@ public class ChartDefinition : INotifyPropertyChanged
 
     private string GetNewAxesKey()
     {
-        var key = _axisKey.ToString();
-        _axisKey++;
+        var key = _axisKeyCounter.ToString();
+        _axisKeyCounter++;
         return key;
     }
 
