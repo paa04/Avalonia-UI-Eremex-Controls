@@ -106,29 +106,32 @@ public class ChartDefinition : INotifyPropertyChanged
     {
         return Series.Where(s => s.SeriesName == seriesName);
     }
-    
-    public void AddSeries(ISeriesDataAdapter dataAdapter, Color color, string Name, SeriesChartType Type, bool XAxisPrimary,
+
+    public void AddSeries(ISeriesDataAdapter dataAdapter, Color color, string Name, SeriesChartType Type,
+        bool XAxisPrimary,
         bool YAxisPrimary,
         int XAxisIndex, int YAxisIndex, string Unit = "", int GroupIndex = -1, CartesianSeries? seriesSettings = null)
     {
         CartesianSeries series;
-    
+
         if (seriesSettings is not null)
             series = seriesSettings;
-    
-        var keyX = GetKeyXByIndex(XAxisIndex, XAxisPrimary);
-        var keyY = GetKeyYByIndex(YAxisIndex, YAxisPrimary);
-    
-        var view = MapSeriesType(Type);
-        SetColor(view, color);
-        
-        series = new CartesianSeries
+        else
         {
-            DataAdapter = dataAdapter, Name = Name, View = view,
-            AxisXKey = keyX, AxisYKey = keyY
-        };
-    
-         Series.Add(series);
+            var keyX = GetKeyXByIndex(XAxisIndex, XAxisPrimary);
+            var keyY = GetKeyYByIndex(YAxisIndex, YAxisPrimary);
+
+            var view = MapSeriesType(Type);
+            SetColor(view, color);
+
+            series = new CartesianSeries
+            {
+                DataAdapter = dataAdapter, Name = Name, View = view,
+                AxisXKey = keyX, AxisYKey = keyY
+            };
+        }
+
+        Series.Add(series);
     }
 
     public void AddAxisX()
@@ -274,7 +277,7 @@ public class ChartDefinition : INotifyPropertyChanged
                 throw new ArgumentOutOfRangeException(nameof(chartType), chartType, null);
         }
     }
-    
+
     private string GetNewAxesKey()
     {
         var key = _axisKey.ToString();
@@ -294,7 +297,7 @@ public class ChartDefinition : INotifyPropertyChanged
     {
         if (isPrimary)
             return AxesY[index].Key;
-        
+
         return AxesY2[index].Key;
     }
 
