@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Controls.ViewModel;
+using Controls.ViewModel.ChartDefinition;
 using Eremex.AvaloniaUI.Charts;
 
 namespace Controls.View;

@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Controls.View;
 using Controls.ViewModel;
+using Controls.ViewModel.ChartDefinition;
 using Eremex.AvaloniaUI.Charts;
 using Eremex.AvaloniaUI.Controls.Common;
 
@@ -35,6 +36,7 @@ public partial class MainWindow : MxWindow
     {
          chartControl.DataContext = vm;
         
+        vm.AddChartArea();
         vm.AddChartArea();
         vm.AddChartArea();
         vm.AddChartArea();
