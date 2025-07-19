@@ -18,8 +18,6 @@
         <viewModels:MainWindowViewModel/>
     </Design.DataContext>
     
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
         <DockPanel>
             <Button Content="Загрузить"
                     DockPanel.Dock="Top"
@@ -29,6 +27,5 @@
             
             <view:DataChartEremex Name="chartControl" />
         </DockPanel>
-    </ScrollViewer>
     
 </mx:MxWindow>

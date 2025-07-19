@@ -20,7 +20,7 @@ public partial class MainWindow : MxWindow
     public MainWindow()
     {
         InitializeComponent();
-        InitChart();
+        InitChart2();
     }
     
     private DataChartViewModel _viewModel;
@@ -32,56 +32,56 @@ public partial class MainWindow : MxWindow
         _view = new DataChartEremex { DataContext = _viewModel };
     }
 
-    public void InitChart()
+    public void InitChart2()
+{
+    chartControl.DataContext = vm;
+
+    for (int i = 0; i < 6; i++)
+        vm.AddChartArea();
+
+    var rnd = new Random();
+    var now = DateTime.Now;
+
+    for (int i = 0; i < 6; i++)
     {
-         chartControl.DataContext = vm;
-        
-        vm.AddChartArea();
-        vm.AddChartArea();
-        vm.AddChartArea();
-        vm.AddChartArea();
-        vm.AddChartArea();
-        vm.AddChartArea();
+        vm[i].AddAxisX(new DateTimeScaleOptions { MeasureUnit = DateTimeUnit.Month });
+        vm[i].AddAxisY(new NumericScaleOptions());
 
-// добавим оси
-
-
-        vm[0].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
-        vm[0].AddAxisY(new NumericScaleOptions());
-
-        Random rand = new Random(4);
-        
-        SortedDateTimeDataAdapter adapter = new SortedDateTimeDataAdapter();
-        SortedDateTimeDataAdapter adapter2 = new SortedDateTimeDataAdapter();
-        
-        for (int i = 0; i < 12; i++)
+        var adapter = new SortedDateTimeDataAdapter();
+        for (int m = 0; m < 12; m++)
         {
-            adapter.Add(DateTime.Now.AddMonths(i), i);
-            adapter2.Add(DateTime.Now.AddMonths(i), rand.NextDouble() * 10);
+            var dt = now.AddMonths(m);
+            double y = rnd.NextDouble() * (i + 1) * 20;
+            adapter.Add(dt, y);
         }
-        
-        vm[0].AddSeries<CartesianLineSeriesView>(adapter, Colors.Blue, new AxesKey("0", "1"));
-        // vm[0].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Red, new AxesKey("0", "1"));
-        
-        vm[0].AddSeries(adapter, Colors.Red, "Lol", SeriesChartType.Column, true, true, 0, 0);
-        
-        // vm[0].RemoveSeries(vm[0].Series[0]);
-        
-        vm[1].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
-        vm[1].AddAxisY(new NumericScaleOptions());
-        
-        
-        vm[1].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Green, new AxesKey("0", "1"));
-        
-        vm[2].AddAxisX(new DateTimeScaleOptions{MeasureUnit = DateTimeUnit.Day});
-        vm[2].AddAxisY(new NumericScaleOptions());
 
-        foreach (var chart in vm.Charts)
+        switch (i)
         {
-            chart.Update();
+            case 0:
+                vm[i].AddSeries<CartesianLineSeriesView>(adapter, Colors.Blue, new AxesKey("0", "1"));
+                break;
+            case 1:
+                vm[i].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Red, new AxesKey("0", "1"));
+                break;
+            case 2:
+                vm[i].AddSeries<CartesianAreaSeriesView>(adapter, Colors.Green, new AxesKey("0", "1"));
+                break;
+            case 3:
+                vm[i].AddSeries<CartesianPointSeriesView>(adapter, Colors.Orange, new AxesKey("0", "1"));
+                break;
+            case 4:
+                vm[i].AddSeries<CartesianLineSeriesView>(adapter, Colors.Purple, new AxesKey("0", "1"));
+                vm[i].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Pink, new AxesKey("0", "1"));
+                break;
+            case 5:
+                vm[i].AddSeries<CartesianAreaSeriesView>(adapter, Colors.Brown, new AxesKey("0", "1"));
+                vm[i].AddSeries<CartesianPointSeriesView>(adapter, Colors.Yellow, new AxesKey("0", "1"));
+                break;
         }
-        
+
+        vm[i].Update();
     }
+}
 
     private async void OnLoadButtonClick(object? sender, RoutedEventArgs e)
     {
