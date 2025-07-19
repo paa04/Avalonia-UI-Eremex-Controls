@@ -20,7 +20,7 @@ public partial class MainWindow : MxWindow
     public MainWindow()
     {
         InitializeComponent();
-        InitChart2();
+        InitChart();
     }
     
     private DataChartViewModel _viewModel;
@@ -32,10 +32,11 @@ public partial class MainWindow : MxWindow
         _view = new DataChartEremex { DataContext = _viewModel };
     }
 
-    public void InitChart2()
+    public void InitChart()
 {
     chartControl.DataContext = vm;
 
+    // Создаём 6 областей
     for (int i = 0; i < 6; i++)
         vm.AddChartArea();
 
@@ -44,17 +45,50 @@ public partial class MainWindow : MxWindow
 
     for (int i = 0; i < 6; i++)
     {
+        // Оси
         vm[i].AddAxisX(new DateTimeScaleOptions { MeasureUnit = DateTimeUnit.Month });
         vm[i].AddAxisY(new NumericScaleOptions());
 
+        // Адаптер
         var adapter = new SortedDateTimeDataAdapter();
-        for (int m = 0; m < 12; m++)
+        for (int m = 0; m < 50; m++)
         {
             var dt = now.AddMonths(m);
-            double y = rnd.NextDouble() * (i + 1) * 20;
-            adapter.Add(dt, y);
+            double value;
+
+            // Разные диапазоны для разных чартов
+            switch (i)
+            {
+                case 0: // Линия: 50 ± 20
+                    value = 50 + (rnd.NextDouble() - 0.5) * 40;
+                    break;
+                case 1: // Bar: 0–100
+                    value = rnd.NextDouble() * 100;
+                    break;
+                case 2: // Area: 20 ± 10
+                    value = 20 + (rnd.NextDouble() - 0.5) * 20;
+                    break;
+                case 3: // Point: 10 ± 5
+                    value = 10 + (rnd.NextDouble() - 0.5) * 10;
+                    break;
+                case 4: // Line + Bar: линия 40±15, столбцы 80±20 (добавим две серии)
+                    if (m % 2 == 0)
+                        value = 40 + (rnd.NextDouble() - 0.5) * 30;
+                    else
+                        value = 80 + (rnd.NextDouble() - 0.5) * 40;
+                    break;
+                default: // Area + Point: area 30±10, point 15±5
+                    if (m % 2 == 0)
+                        value = 30 + (rnd.NextDouble() - 0.5) * 20;
+                    else
+                        value = 15 + (rnd.NextDouble() - 0.5) * 10;
+                    break;
+            }
+
+            adapter.Add(dt, value);
         }
 
+        // Серии
         switch (i)
         {
             case 0:
@@ -70,18 +104,38 @@ public partial class MainWindow : MxWindow
                 vm[i].AddSeries<CartesianPointSeriesView>(adapter, Colors.Orange, new AxesKey("0", "1"));
                 break;
             case 4:
-                vm[i].AddSeries<CartesianLineSeriesView>(adapter, Colors.Purple, new AxesKey("0", "1"));
-                vm[i].AddSeries<CartesianSideBySideBarSeriesView>(adapter, Colors.Pink, new AxesKey("0", "1"));
+                // две серии в одну область
+                var adapterLine = new SortedDateTimeDataAdapter();
+                var adapterBar  = new SortedDateTimeDataAdapter();
+                for (int m = 0; m < 50; m++)
+                {
+                    var dt = now.AddMonths(m);
+                    adapterLine.Add(dt, 40 + (rnd.NextDouble() - 0.5) * 30);
+                    adapterBar .Add(dt, 80 + (rnd.NextDouble() - 0.5) * 40);
+                }
+                vm[i].AddSeries<CartesianLineSeriesView>(adapterLine, Colors.Purple, new AxesKey("0", "1"));
+                vm[i].AddSeries<CartesianSideBySideBarSeriesView>(adapterBar, Colors.Pink, new AxesKey("0", "1"));
                 break;
             case 5:
-                vm[i].AddSeries<CartesianAreaSeriesView>(adapter, Colors.Brown, new AxesKey("0", "1"));
-                vm[i].AddSeries<CartesianPointSeriesView>(adapter, Colors.Yellow, new AxesKey("0", "1"));
+                // area + points
+                var adapterArea  = new SortedDateTimeDataAdapter();
+                var adapterPoint = new SortedDateTimeDataAdapter();
+                for (int m = 0; m < 50; m++)
+                {
+                    var dt = now.AddMonths(m);
+                    adapterArea .Add(dt, 30 + (rnd.NextDouble() - 0.5) * 20);
+                    adapterPoint.Add(dt, 15 + (rnd.NextDouble() - 0.5) * 10);
+                }
+                vm[i].AddSeries<CartesianAreaSeriesView>(adapterArea, Colors.Brown, new AxesKey("0", "1"));
+                vm[i].AddSeries<CartesianPointSeriesView>(adapterPoint, Colors.Yellow, new AxesKey("0", "1"));
                 break;
         }
 
         vm[i].Update();
     }
 }
+
+
 
     private async void OnLoadButtonClick(object? sender, RoutedEventArgs e)
     {
