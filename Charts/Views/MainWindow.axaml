@@ -1,0 +1,31 @@
+<mx:MxWindow xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:mx="https://schemas.eremexcontrols.net/avalonia"
+             xmlns:viewModels="clr-namespace:ChartBarSeriesView.ViewModels"
+             xmlns:controls1="clr-namespace:Controls;assembly=Controls"
+             xmlns:view="clr-namespace:Controls.View;assembly=Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Charts.Views.MainWindow"
+             x:DataType="viewModels:MainWindowViewModel"
+             Icon="/Assets/EMXControls.ico"
+             Title="Charts">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:MainWindowViewModel/>
+    </Design.DataContext>
+    
+        <DockPanel>
+            <Button Content="Загрузить"
+                    DockPanel.Dock="Top"
+                    HorizontalAlignment="Left"
+                    Margin="5"
+                    Click="OnLoadButtonClick" />
+            
+            <view:DataChartEremex Name="chartControl" />
+        </DockPanel>
+    
+</mx:MxWindow>
